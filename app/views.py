@@ -1,5 +1,6 @@
 from app import app
 from datetime import datetime
+from flask import request, redirect
 
 from flask import render_template
 
@@ -84,3 +85,62 @@ def jinja():
 @app.template_filter("clean_date")
 def clean_date(dt):
     return dt.strftime("%d %b %Y")
+
+@app.route("/sign-up", methods=["GET", "POST"])
+def sign_up():
+
+    if request.method == "POST":
+
+        req = request.form
+
+        missing = list()
+
+        for k, v in req.items():
+            if v == "":
+                missing.append(k)
+
+        if missing:
+            feedback = f"Missing fields for {', '.join(missing)}"
+            return render_template("public/sign_up.html", feedback=feedback)
+
+        return redirect(request.url)
+
+    return render_template("public/sign_up.html")
+
+
+@app.route("/profile/<username>")
+def profile(username):
+
+    user = None
+    users = {
+    "mitsuhiko": {
+        "name": "Armin Ronacher",
+        "bio": "Creatof of the Flask framework",
+        "twitter_handle": "@mitsuhiko"
+    },
+    "gvanrossum": {
+        "name": "Guido Van Rossum",
+        "bio": "Creator of the Python programming language",
+        "twitter_handle": "@gvanrossum"
+    },
+    "elonmusk": {
+        "name": "Elon Musk",
+        "bio": "technology entrepreneur, investor, and engineer",
+        "twitter_handle": "@elonmusk"
+    }
+}
+
+    if username in users:
+        user = users[username]
+
+    return render_template("public/profile.html", username=username, user=user)
+
+@app.route("/multiple/<foo>/<bar>/<baz>")
+def multiple(foo, bar, baz):
+
+    print(f"foo is {foo}")
+    print(f"bar is {bar}")
+    print(f"baz is {baz}")
+
+
+    return f"foo is {foo}, bar is {bar}, baz is {baz}"
